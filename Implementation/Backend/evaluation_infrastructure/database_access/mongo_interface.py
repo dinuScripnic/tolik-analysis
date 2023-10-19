@@ -3,11 +3,11 @@ import typing
 from pymongo import MongoClient
 
 from evaluation_infrastructure.database_access.abstract_database_interface import (
-    AbstractDatabaseInterface,
+    DBInterface, Connection
 )
 
 
-class MongoInterface(AbstractDatabaseInterface):
+class MongoInterface(DBInterface):
     """Interface for the MongoDB database."""
 
     def __init__(self, host: str) -> None:
@@ -73,3 +73,6 @@ class MongoInterface(AbstractDatabaseInterface):
             table (str): Table to be deleted from.
         """
         return self.client["evaluation_system"][table].delete_one(query)
+
+
+mi: DBInterface = MongoInterface("G")

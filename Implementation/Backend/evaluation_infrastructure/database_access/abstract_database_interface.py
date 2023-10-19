@@ -1,43 +1,28 @@
 """Abstract Database Interface"""
-from abc import ABC, abstractmethod
-import typing
+from __future__ import annotations
+
+from typing import Protocol, TypeVar, Mapping, Self
+
+QK = TypeVar("QK")
+QV = TypeVar("QV", contravariant=True)
 
 
-class AbstractDatabaseInterface(ABC):
-    """Abstract Database Interface"""
+class DBInterface(Protocol[QK, QV]):
+    def __init__(self, host: str) -> None: ...
+    def connect(self) -> None: ...
+    def disconnect(self) -> None: ...
+    def find(self, query: Mapping[QK, QV], table: str) -> list[object]: ...
+    def find_first(self, query: Mapping[QK, QV], table: str) -> object: ...
+    def find_unique(self, query: Mapping[QK, QV], table: str) -> object: ...
+    def find_all(self, table: str) -> list[object]: ...
+    def update(self, data: Mapping[QK, QV], table: str, query: Mapping[QK, QV]) -> object: ...
+    def insert(self, data: Mapping[QK, QV], table: str) -> None: ...
+    def delete(self, query: Mapping[QK, QV], table: str) -> None: ...
+    def transaction(self) -> Connection: ...
 
-    @abstractmethod
-    def __init__(self, host: str) -> None:
-        """Abstract Database Interface initializer"""
 
-    @abstractmethod
-    def connect(self) -> None:
-        """Abstract Database Interface connect method"""
-
-    @abstractmethod
-    def disconnect(self) -> None:
-        """Abstract Database Interface disconnect method"""
-
-    @abstractmethod
-    def query(self, query: dict, table) -> typing.List[dict]:
-        """Abstract Database Interface query method"""
-
-    @abstractmethod
-    def fetch(self, table) -> typing.List[dict]:
-        """Gets all the data from the database"""
-
-    @abstractmethod
-    def insert(self, data, table):
-        """Abstract Database Interface insert method"""
-
-    @abstractmethod
-    def save(self, data, table):
-        """Abstract Database Interface save method"""
-
-    @abstractmethod
-    def update(self, data, table, query):
-        """Abstract Database Interface update method"""
-
-    @abstractmethod
-    def delete(self, query, table):
-        """Abstract Database Interface delete method"""
+class Connection:
+    def __init__(self, caller: DBInterface) -> None: ...
+    def __enter__(self) -> Self: ...
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None: ...
+    def commit(self) -> None: ...
